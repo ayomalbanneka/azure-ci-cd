@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azure CI/CD App</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    .logo {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 16px;
+      opacity: 0.85;
+      margin-bottom: 32px;
+    }
+    .status-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .status-row + .status-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .status-label { opacity: 0.8; }
+    .status-value { font-weight: 600; }
+    .badge {
+      display: inline-block;
+      background: #28a745;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge.loading {
+      background: #ffc107;
+      color: #333;
+    }
+    .btn {
+      display: inline-block;
+      background: #fff;
+      color: #0078d4;
+      border: none;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+    footer {
+      margin-top: 24px;
+      font-size: 13px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">☁️</div>
+    <h1>Azure CI/CD App</h1>
+    <p class="subtitle">Deployed with continuous integration &amp; delivery</p>
+
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-label">Health</span>
+        <span id="health" class="badge loading">Checking…</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Environment</span>
+        <span class="status-value" id="env">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Server Time</span>
+        <span class="status-value" id="time">—</span>
+      </div>
+    </div>
+
+    <button class="btn" onclick="checkHealth()">Refresh Status</button>
+
+    <footer>Node.js on Azure App Service</footer>
+  </div>
+
+  <script>
+    async function checkHealth() {
+      const badge = document.getElementById('health');
+      const envEl = document.getElementById('env');
+      const timeEl = document.getElementById('time');
+      badge.textContent = 'Checking…';
+      badge.className = 'badge loading';
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        badge.textContent = data.status === 'ok' ? 'Healthy' : 'Unhealthy';
+        badge.className = 'badge' + (data.status === 'ok' ? '' : ' loading');
+        envEl.textContent = data.environment || 'N/A';
+        timeEl.textContent = new Date(data.timestamp).toLocaleString();
+      } catch {
+        badge.textContent = 'Error';
+        badge.className = 'badge loading';
+      }
+    }
+    checkHealth();
+  </script>
+</body>
+</html>
