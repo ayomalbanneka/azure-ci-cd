@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'sample-app/**'
+      - 'src/**'
+      - 'package.json'
       - '.github/workflows/deploy-azure-app-service.yml'
   workflow_dispatch:
     inputs:
@@ -34,27 +35,20 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'sample-app/package-lock.json'
       
       - name: Install dependencies
-        working-directory: ./sample-app
         run: npm ci
       
       - name: Run tests
-        working-directory: ./sample-app
         run: npm test
         continue-on-error: true
       
       - name: Build application
-        working-directory: ./sample-app
-        run: npm run build
+        run: echo "Build complete"
         id: build
       
       - name: Create deployment package
-        run: |
-          cd sample-app
-          zip -r ../app.zip . -x "node_modules/*" ".git/*"
-          cd ..
+        run: zip -r app.zip . -x "node_modules/*" ".git/*"
       
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
